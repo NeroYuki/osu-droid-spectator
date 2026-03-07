@@ -2,6 +2,7 @@ import { Vector2 } from "@rian8337/osu-base";
 import { SpectatorAccuracyEvent } from "../../spectator/events/SpectatorAccuracyEvent";
 import { DrawableScoreCounter } from "./DrawableScoreCounter";
 import { DrawableStatisticsCounter } from "./DrawableStatisticsCounter";
+import { windowScale } from "../../settings/SpectatorSettings";
 
 /**
  * Represents an accuracy counter.
@@ -9,8 +10,12 @@ import { DrawableStatisticsCounter } from "./DrawableStatisticsCounter";
 export class DrawableAccuracyCounter extends DrawableStatisticsCounter<SpectatorAccuracyEvent> {
     private static readonly fontSize = 40;
     private static readonly paddingX = DrawableScoreCounter.paddingX;
-    private static readonly paddingY =
-        DrawableScoreCounter.paddingY + this.fontSize + 5;
+
+    static get paddingY() {
+        return (
+            DrawableScoreCounter.paddingY + (this.fontSize + 5) * windowScale.y
+        );
+    }
 
     protected override readonly allowFractional = true;
     protected override readonly rollingDuration = 375;

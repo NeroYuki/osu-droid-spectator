@@ -11,6 +11,9 @@ import { teamMode } from "./settings/RoomSettings";
 import { MultiplayerTeamMode } from "./spectator/structures/MultiplayerTeamMode";
 import { DrawableHitErrorBar } from "./drawables/DrawableHitErrorBar";
 import { DrawableClickCounter } from "./drawables/counters/DrawableClickCounter";
+import { DrawableResultScreen } from "./drawables/DrawableResultScreen";
+import { audioState } from "./elements/Audio";
+import { DrawableModsIndicator } from "./drawables/DrawableModsIndicator";
 
 /**
  * Represents a beatmap preview.
@@ -57,9 +60,19 @@ export class Preview {
     scoreCounter?: DrawableScoreCounter;
 
     /**
+     * The mods indicator responsible for this preview.
+     */
+    modsIndicator?: DrawableModsIndicator;
+
+    /**
      * The hit error bar responsible for this preview.
      */
     hitErrorBar?: DrawableHitErrorBar;
+
+    /**
+     * The result screen responsible for this preview.
+     */
+    resultScreen?: DrawableResultScreen;
 
     /**
      * The uid of the player in this preview.
@@ -134,8 +147,6 @@ export class Preview {
             parsedBeatmap,
             specDataManager.mods,
             this.sizeScale,
-            specDataManager.forceCS,
-            specDataManager.forceAR,
         );
 
         this.specDataManager = specDataManager;
@@ -174,9 +185,17 @@ export class Preview {
             specDataManager.events.score,
             this.sizeScale,
         );
+        this.modsIndicator = new DrawableModsIndicator(
+            specDataManager.mods,
+            this.sizeScale,
+        );
         this.hitErrorBar = new DrawableHitErrorBar(
             specDataManager.events.objectData,
             specDataManager.hitWindow,
+        );
+        this.resultScreen = new DrawableResultScreen(
+            specDataManager.uid,
+            this.sizeScale,
         );
 
         this.at(0);
@@ -187,7 +206,7 @@ export class Preview {
      *
      * @param time The time.
      */
-    at(time: number): void {
+    at(time: number) {
         if (!this.beatmap || !this.specDataManager) {
             // The beatmap may not be loaded yet. In that case, do nothing.
             return;
@@ -195,8 +214,23 @@ export class Preview {
 
         this.applyCanvasPosition();
         this.ctx.clearRect(0, 0, this.screen.width, this.screen.height);
+
+        const finalObjectEndTime =
+            this.beatmap.beatmap.hitObjects.objects[
+                this.beatmap.beatmap.hitObjects.objects.length - 1
+            ].endTime;
+
+        // Draw the result screen 2 seconds after the beatmap has finished in real-time.
+        if (time >= finalObjectEndTime + 2000 * audioState.audio.playbackRate) {
+            this.resultScreen?.draw(this.ctx);
+            this.playerInfo?.draw(this.ctx, time);
+
+            return;
+        }
+
         this.clickCounter?.draw(this.ctx, time);
         this.accuracyCounter?.draw(this.ctx, time);
+        this.modsIndicator?.draw(this.ctx);
         this.comboCounter?.draw(this.ctx, time);
         this.scoreCounter?.draw(this.ctx, time);
         this.hitErrorBar?.draw(this.ctx, time);

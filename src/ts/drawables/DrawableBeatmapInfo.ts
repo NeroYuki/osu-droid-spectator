@@ -1,20 +1,13 @@
-import {
-    BeatmapDifficulty,
-    DroidHitWindow,
-    Modes,
-    ModPrecise,
-    ModUtil,
-    PreciseDroidHitWindow,
-} from "@rian8337/osu-base";
+import { BeatmapDifficulty, Modes, ModUtil } from "@rian8337/osu-base";
+import { audioState } from "../elements/Audio";
 import {
     droidStarRating,
+    osuStarRating,
     parsedBeatmap,
     pickedBeatmap,
-    standardStarRating,
 } from "../settings/BeatmapSettings";
 import { mods } from "../settings/RoomSettings";
 import { DrawableRollingCounter } from "./counters/DrawableRollingCounter";
-import { audioState } from "../elements/Audio";
 
 /**
  * A drawable used to display beatmap information.
@@ -117,18 +110,8 @@ export class DrawableBeatmapInfo {
             difficulty,
             Modes.droid,
             mods,
-            undefined,
             true,
         );
-
-        if (mods.some((m) => m instanceof ModPrecise)) {
-            // Special case for OD. The Precise mod changes the hit window and not the OD itself, but we must
-            // map the hit window back to the original hit window for the user to understand the difficulty
-            // increase of the mod.
-            const { greatWindow } = new PreciseDroidHitWindow(difficulty.od);
-
-            difficulty.od = DroidHitWindow.greatWindowToOD(greatWindow);
-        }
 
         // CS, AR, OD
         this.write("CS", difficulty.cs.toFixed(2).replace(/\.?0+$/, ""), " / ");
@@ -142,20 +125,22 @@ export class DrawableBeatmapInfo {
             "Star Rating",
             this.formatNullableDecimal(droidStarRating) +
                 " / " +
-                this.formatNullableDecimal(standardStarRating),
+                this.formatNullableDecimal(osuStarRating),
         );
 
         // Length
         this.translateTo(this.screen.width / 4, 0);
 
-        const clockRate = ModUtil.calculateRateWithMods(mods);
+        const clockRate = ModUtil.calculateRateWithMods(mods.values());
         const duration =
             parsedBeatmap.hitObjects.objects[
                 parsedBeatmap.hitObjects.objects.length - 1
-            ].endTime / clockRate;
+            ].endTime /
+            clockRate /
+            1000;
 
-        const lengthMinutes = Math.floor(duration / 60000);
-        const lengthSeconds = Math.floor((duration % 60000) / 1000);
+        const lengthMinutes = Math.floor(duration / 60);
+        const lengthSeconds = Math.floor(duration % 60);
 
         const currentTime = Math.min(
             audioState.audio.currentTime / clockRate,
@@ -173,7 +158,8 @@ export class DrawableBeatmapInfo {
                 " / " +
                 [lengthMinutes, lengthSeconds]
                     .map((v) => v.toString().padStart(2, "0"))
-                    .join(":"),
+                    .join(":") +
+                ` (${Math.floor((currentTime / duration) * 100).toString()}%)`,
         );
 
         // BPM
@@ -247,7 +233,7 @@ export class DrawableBeatmapInfo {
         try {
             // this code will fail in Firefox(<~ 44)
             // https://bugzilla.mozilla.org/show_bug.cgi?id=941146
-            this.ctx.font = `${bold ? "bold " : ""}${this.fontHeight.toString()}px Torus`;
+            this.ctx.font = `${bold ? "bold " : ""}${this.fontHeight.toString()}px Torus, sans-serif`;
         } catch {
             // Ignore error
         }

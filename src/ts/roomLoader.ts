@@ -1,17 +1,16 @@
-import { setPickedBeatmap } from "./settings/BeatmapSettings";
-import { BeatmapChangedHandler } from "./spectator/handlers/BeatmapChangedHandler";
-import { RoundStartHandler } from "./spectator/handlers/RoundStartHandler";
 import { Socket, io } from "socket.io-client";
-import { SpectatorClientEvents } from "./spectator/SpectatorClientEvents";
+import { emptyChat } from "./elements/ChatContainer";
+import { setPickedBeatmap } from "./settings/BeatmapSettings";
+import { setMods, setTeamMode } from "./settings/RoomSettings";
 import { dataProcessor } from "./settings/SpectatorSettings";
-import { ChatMessageHandler } from "./spectator/handlers/ChatMessageHandler";
-import { RoundEndHandler } from "./spectator/handlers/RoundEndHandler";
-import { SkipPerformedHandler } from "./spectator/handlers/SkipPerformedHandler";
-import {
-    setMods,
-    setSpeedMultiplier,
-    setTeamMode,
-} from "./settings/RoomSettings";
+import onBeatmapChanged from "./spectator/handlers/BeatmapChangedHandler";
+import onChatMessage from "./spectator/handlers/ChatMessageHandler";
+import onRoundAbort from "./spectator/handlers/RoundAbortHandler";
+import onRoundEnd from "./spectator/handlers/RoundEndHandler";
+import onRoundStart from "./spectator/handlers/RoundStartHandler";
+import onScoreSubmission from "./spectator/handlers/ScoreSubmissionHandler";
+import onSkipPerformed from "./spectator/handlers/SkipPerformedHandler";
+import { SpectatorClientEvents } from "./spectator/SpectatorClientEvents";
 
 let socket: Socket<SpectatorClientEvents> | null = null;
 let disconnectTimeout: NodeJS.Timeout | undefined;
@@ -34,9 +33,7 @@ export function askRoomID(
 
     socket = io(`https://droidpp.osudroid.moe/api/tournament/${roomId}`, {
         path: "/api/tournament/socket.io",
-        auth: {
-            type: "1",
-        },
+        auth: { type: "1" },
         reconnectionAttempts: 8,
     });
 
@@ -68,37 +65,32 @@ export function askRoomID(
             clearTimeout(disconnectTimeout);
             console.log(`Connected to room ${roomId}`);
         })
-        .on("chatMessage", ChatMessageHandler.handle.bind(ChatMessageHandler))
+        .on("chatMessage", onChatMessage)
         .on("spectatorData", dataProcessor.process.bind(dataProcessor))
-        .on(
-            "beatmapChanged",
-            BeatmapChangedHandler.handle.bind(BeatmapChangedHandler),
-        )
-        .on("roundStarted", RoundStartHandler.handle.bind(RoundStartHandler))
-        .on("roundEnded", RoundEndHandler.handle.bind(RoundEndHandler))
-        .on(
-            "skipPerformed",
-            SkipPerformedHandler.handle.bind(SkipPerformedHandler),
-        )
+        .on("beatmapChanged", onBeatmapChanged)
+        .on("roundAborted", onRoundAbort)
+        .on("roundStarted", onRoundStart)
+        .on("roundEnded", onRoundEnd)
+        .on("skipPerformed", onSkipPerformed)
+        .on("scoreSubmission", onScoreSubmission)
         .once("initialConnection", async (room) => {
             console.log("Room info received:");
             console.log(room);
 
-            ChatMessageHandler.emptyChat();
+            emptyChat();
 
             setPickedBeatmap(room.beatmap);
-            setMods(room.mods.mods ?? "");
-            setSpeedMultiplier(room.mods.speedMultiplier);
+            setMods(room.mods);
             setTeamMode(room.teamMode);
 
             if (room.beatmap) {
-                await BeatmapChangedHandler.handle(room.beatmap);
+                await onBeatmapChanged(room.beatmap);
             } else {
                 $("#title a").text("No beatmaps selected yet");
             }
 
             if (room.isPlaying) {
-                RoundStartHandler.handle(room);
+                onRoundStart(room);
             }
         });
 }

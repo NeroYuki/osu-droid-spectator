@@ -2,15 +2,14 @@ import {
     BeatmapDifficulty,
     DroidHitWindow,
     HitWindow,
-    IModApplicableToDroid,
-    Mod,
-    ModDifficultyAdjust,
+    ModMap,
     ModPrecise,
     ModUtil,
     Modes,
     PreciseDroidHitWindow,
 } from "@rian8337/osu-base";
 import { parsedBeatmap } from "../../settings/BeatmapSettings";
+import { MultiplayerScore } from "../rawdata/MultiplayerScore";
 import { MultiplayerPlayer } from "../structures/MultiplayerPlayer";
 import { SpectatorAccuracyEventManager } from "./SpectatorAccuracyEventManager";
 import { SpectatorClickEventManager } from "./SpectatorClickEventManager";
@@ -37,22 +36,7 @@ export class SpectatorDataManager {
     /**
      * The mods this player uses to play.
      */
-    readonly mods: (Mod & IModApplicableToDroid)[];
-
-    /**
-     * The force CS this player uses to play.
-     */
-    readonly forceCS?: number;
-
-    /**
-     * The force AR this player uses to play.
-     */
-    readonly forceAR?: number;
-
-    /**
-     * The force OD this player uses to play.
-     */
-    readonly forceOD?: number;
+    readonly mods: ModMap;
 
     /**
      * Managers for spectator events of this player.
@@ -72,11 +56,9 @@ export class SpectatorDataManager {
     latestDataTime = -1;
 
     /**
-     * The maximum hit window of this player.
+     * The resulting score of this player.
      */
-    get maxHitWindow(): number {
-        return this.hitWindow.mehWindow;
-    }
+    result?: MultiplayerScore;
 
     /**
      * Whether the presence of data in this manager should be ignored.
@@ -139,9 +121,6 @@ export class SpectatorDataManager {
     constructor(player: MultiplayerPlayer) {
         this.uid = player.uid;
         this.username = player.username;
-        this.forceCS = player.mods.customCS;
-        this.forceAR = player.mods.customAR;
-        this.forceOD = player.mods.customOD;
 
         if (!parsedBeatmap) {
             throw new Error("No beatmaps have been parsed yet");
@@ -161,33 +140,17 @@ export class SpectatorDataManager {
             this.events.cursors.push(new SpectatorCursorEventManager());
         }
 
-        this.mods = ModUtil.droidStringToMods(player.mods.mods ?? "");
-
-        const localMods = ModUtil.removeSpeedChangingMods(this.mods);
-
-        if (
-            [this.forceCS, this.forceAR, this.forceOD].some(
-                (v) => v !== undefined,
-            )
-        ) {
-            localMods.push(
-                new ModDifficultyAdjust({
-                    cs: this.forceCS,
-                    ar: this.forceAR,
-                    od: this.forceOD,
-                }),
-            );
-        }
+        this.mods = ModUtil.deserializeMods(player.mods);
 
         const difficulty = new BeatmapDifficulty(parsedBeatmap.difficulty);
 
         ModUtil.applyModsToBeatmapDifficulty(
             difficulty,
             Modes.droid,
-            localMods,
+            this.mods,
         );
 
-        if (this.mods.some((m) => m instanceof ModPrecise)) {
+        if (this.mods.has(ModPrecise)) {
             this.hitWindow = new PreciseDroidHitWindow(difficulty.od);
         } else {
             this.hitWindow = new DroidHitWindow(difficulty.od);

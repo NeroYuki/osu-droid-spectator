@@ -7,7 +7,7 @@ import { DrawableHitObject } from "./DrawableHitObject";
  * Represents a circle that can be drawn.
  */
 export class DrawableCircle extends DrawableHitObject {
-    protected readonly isHidden = this.mods.some((m) => m instanceof ModHidden);
+    protected readonly isHidden = this.mods.has(ModHidden);
 
     override draw(
         ctx: CanvasRenderingContext2D,
@@ -203,6 +203,7 @@ export class DrawableCircle extends DrawableHitObject {
         ctx.translate(position.x, position.y);
         ctx.rotate(rotation);
         ctx.fillText(text, 0, 0);
+        ctx.strokeText(text, 0, 0);
         ctx.restore();
     }
 

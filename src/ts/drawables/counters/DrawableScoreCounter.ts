@@ -1,6 +1,7 @@
 import { Vector2 } from "@rian8337/osu-base";
 import { SpectatorScoreEvent } from "../../spectator/events/SpectatorScoreEvent";
 import { DrawableStatisticsCounter } from "./DrawableStatisticsCounter";
+import { windowScale } from "../../settings/SpectatorSettings";
 
 /**
  * Represents a score counter.
@@ -8,7 +9,10 @@ import { DrawableStatisticsCounter } from "./DrawableStatisticsCounter";
 export class DrawableScoreCounter extends DrawableStatisticsCounter<SpectatorScoreEvent> {
     private static readonly fontSize = 60;
     static readonly paddingX = 5;
-    static readonly paddingY = this.fontSize;
+
+    static get paddingY() {
+        return this.fontSize * windowScale.y;
+    }
 
     protected override readonly rollingDuration = 1000;
 

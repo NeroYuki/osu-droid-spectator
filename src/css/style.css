@@ -1,43 +1,43 @@
 @font-face {
     font-family: Torus;
     font-weight: 100;
-    src: url(../assets/Torus-Thin.otf);
+    src: url(../assets/fonts/Torus-Thin.otf);
 }
 
 @font-face {
     font-family: Torus;
     font-weight: 600;
-    src: url(../assets/Torus-SemiBold.otf);
+    src: url(../assets/fonts/Torus-SemiBold.otf);
 }
 
 @font-face {
     font-family: Torus;
     font-weight: 700;
-    src: url(../assets/Torus-SemiBold.otf);
+    src: url(../assets/fonts/Torus-SemiBold.otf);
 }
 
 @font-face {
     font-family: Torus;
     font-weight: 400;
-    src: url(../assets/Torus-Regular.otf);
+    src: url(../assets/fonts/Torus-Regular.otf);
 }
 
 @font-face {
     font-family: Torus;
     font-weight: 300;
-    src: url(../assets/Torus-Light.otf);
+    src: url(../assets/fonts/Torus-Light.otf);
 }
 
 @font-face {
     font-family: Torus;
     font-weight: 900;
-    src: url(../assets/Torus-Heavy.otf);
+    src: url(../assets/fonts/Torus-Heavy.otf);
 }
 
 @font-face {
     font-family: Torus;
     font-weight: 800;
-    src: url(../assets/Torus-Bold.otf);
+    src: url(../assets/fonts/Torus-Bold.otf);
 }
 
 html,
@@ -209,9 +209,9 @@ a:hover {
     font-family: Torus;
     position: absolute;
     z-index: 9;
-    background-color: rgb(47, 47, 47);
+    background-color: rgba(47, 47, 47, 0.75);
     border: 1px solid #d3d3d3;
-    width: 25%;
+    width: 30%;
     max-height: 60%;
     color: #fff;
     overflow-y: scroll;

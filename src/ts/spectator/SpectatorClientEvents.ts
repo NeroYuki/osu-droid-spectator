@@ -1,4 +1,5 @@
 import { MultiplayerRoom } from "./rawdata/MultiplayerRoom";
+import { MultiplayerScore } from "./rawdata/MultiplayerScore";
 import { PickedBeatmap } from "./rawdata/PickedBeatmap";
 import { StartingRoundMultiplayerRoom } from "./rawdata/StartingRoundMultiplayerRoom";
 
@@ -28,6 +29,11 @@ export interface SpectatorClientEvents {
     roundStarted: (room: StartingRoundMultiplayerRoom) => void;
 
     /**
+     * Emitted when the round is aborted.
+     */
+    roundAborted: () => void;
+
+    /**
      * Emitted when a skip in gameplay was performed.
      */
     skipPerformed: () => void;
@@ -51,4 +57,11 @@ export interface SpectatorClientEvents {
      * @param message The message that was sent by the player or system.
      */
     chatMessage: (username: string | null, message: string) => void;
+
+    /**
+     * Emitted when a player submits their score.
+     *
+     * @param score The submitted score.
+     */
+    scoreSubmission: (score: MultiplayerScore) => void;
 }

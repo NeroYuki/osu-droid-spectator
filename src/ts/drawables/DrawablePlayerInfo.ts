@@ -4,11 +4,11 @@ import {
     RGBColor,
     Vector2,
 } from "@rian8337/osu-base";
-import { MultiplayerTeam } from "../spectator/structures/MultiplayerTeam";
+import { parsedBeatmap } from "../settings/BeatmapSettings";
 import { players } from "../settings/PlayerSettings";
 import { dataProcessor, teamColors } from "../settings/SpectatorSettings";
-import { parsedBeatmap } from "../settings/BeatmapSettings";
 import { MultiplayerPlayer } from "../spectator/structures/MultiplayerPlayer";
+import { MultiplayerTeam } from "../spectator/structures/MultiplayerTeam";
 
 /**
  * Represents player information to be drawn.
@@ -108,12 +108,12 @@ export class DrawablePlayerInfo
         try {
             // This code will fail in Firefox(<~ 44)
             // https://bugzilla.mozilla.org/show_bug.cgi?id=941146
-            ctx.font = `bold ${fontSize}px Torus`;
-        } catch (e) {
+            ctx.font = `bold ${fontSize.toString()}px Torus, sans-serif`;
+        } catch {
             // Ignore error
         }
 
-        ctx.fillStyle = `rgb(${color})`;
+        ctx.fillStyle = `rgb(${color.toString()})`;
         ctx.globalAlpha = 1;
         ctx.textAlign = "right";
         ctx.translate(ctx.canvas.width, ctx.canvas.height);
@@ -122,14 +122,11 @@ export class DrawablePlayerInfo
         ctx.scale(this.sizeScale.y, this.sizeScale.y);
 
         ctx.fillText(
-            `${this.username}${
-                manager.mods.length > 0
-                    ? ` (${manager.mods.reduce((a, m) => a + m.acronym, "")})`
-                    : ""
-            }`,
+            this.username,
             -DrawablePlayerInfo.paddingX,
             -DrawablePlayerInfo.paddingY,
         );
+
         ctx.restore();
     }
 }

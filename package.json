@@ -5,34 +5,34 @@
   "scripts": {
     "build-development": "node src/bundler.js --development",
     "build-production": "node src/bundler.js",
-    "format-code": "npx prettier -w --loglevel=silent \"src/ts/**\"",
+    "format-code": "prettier -w --loglevel=silent \"src/ts/**\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "Rian8337",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@babel/core": "^7.20.2",
-    "@babel/preset-env": "^7.20.2",
-    "@types/jquery": "^3.5.14",
-    "@types/lodash.clonedeep": "^4.5.7",
-    "@types/node": "^20.5.7",
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.0",
+    "@types/jquery": "^3.5.33",
+    "@types/node": "^20.19.31",
+    "@types/uglify-js": "^3.17.5",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
     "babelify": "^10.0.0",
-    "browserify": "^17.0.0",
-    "eslint": "^8.27.0",
-    "prettier": "^3.0.3",
+    "browserify": "^17.0.1",
+    "eslint": "^9.39.2",
+    "prettier": "^3.8.1",
     "tsify": "^5.0.4",
-    "typescript": "^5.3.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0"
   },
   "dependencies": {
-    "@rian8337/osu-base": "^4.0.0-beta.18",
-    "@rian8337/osu-difficulty-calculator": "^4.0.0-beta.41",
-    "@typescript-eslint/eslint-plugin": "^8.12.2",
-    "@typescript-eslint/parser": "^8.12.2",
-    "dotenv": "^16.3.1",
+    "@rian8337/osu-base": "4.0.0-beta.85",
+    "@rian8337/osu-difficulty-calculator": "4.0.0-beta.85",
     "jszip": "^3.10.1",
-    "lodash.clonedeep": "^4.5.0",
-    "socket.io-client": "^4.7.2",
+    "socket.io-client": "^4.8.3",
+    "uglify-js": "^3.19.3",
     "uglifyify": "^5.0.2"
   }
 }
