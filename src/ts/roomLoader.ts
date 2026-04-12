@@ -31,7 +31,7 @@ export function askRoomID(
     // Close the existing connection, if present.
     socket?.disconnect();
 
-    socket = io(`https://droidpp.osudroid.moe/api/tournament/${roomId}`, {
+    socket = io(`https://osudroid.kansenindex.dev/api/tournament/${roomId}`, {
         path: "/api/tournament/socket.io",
         auth: { type: "1" },
         reconnectionAttempts: 8,

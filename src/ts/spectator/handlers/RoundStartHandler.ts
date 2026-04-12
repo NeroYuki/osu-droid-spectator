@@ -17,6 +17,7 @@ import { previews, reloadPreviews } from "../../settings/PreviewSettings";
 import { mods, setMods, setTeamMode } from "../../settings/RoomSettings";
 import { dataProcessor, infoDisplay } from "../../settings/SpectatorSettings";
 import { StartingRoundMultiplayerRoom } from "../rawdata/StartingRoundMultiplayerRoom";
+import { MultiplayerPlayer } from "../structures/MultiplayerPlayer";
 import { onRoundStart } from "./ChatMessageHandler";
 
 const droidDifficultyCalculator = new DroidDifficultyCalculator();
@@ -31,7 +32,12 @@ export default function (room: StartingRoundMultiplayerRoom) {
     console.log(room);
 
     setIgnoredPlayersFromRoomName(room.name);
-    setPlayers(room.playingPlayers);
+
+    const normalizedPlayers: MultiplayerPlayer[] = room.playingPlayers.map(
+        (p) => ({ uid: p.id, username: p.username, mods: p.mods, team: p.team }),
+    );
+
+    setPlayers(normalizedPlayers);
     setMods(room.mods);
     setTeamMode(room.teamMode);
     calculateMaxScore();

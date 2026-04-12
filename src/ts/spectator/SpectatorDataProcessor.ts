@@ -173,19 +173,13 @@ export class SpectatorDataProcessor {
                 const id: MovementType = time & 3;
                 time >>= 2;
 
+                const x =
+                    id !== MovementType.up ? this.readFloat(view, counter) : -1;
+                const y =
+                    id !== MovementType.up ? this.readFloat(view, counter) : -1;
+
                 events.cursors[i].add(
-                    new SpectatorCursorEvent(
-                        time,
-                        new Vector2(
-                            id !== MovementType.up
-                                ? this.readFloat(view, counter)
-                                : -1,
-                            id !== MovementType.up
-                                ? this.readFloat(view, counter)
-                                : -1,
-                        ),
-                        id,
-                    ),
+                    new SpectatorCursorEvent(time, new Vector2(x, y), id),
                 );
 
                 if (id === MovementType.down) {
@@ -241,16 +235,13 @@ export class SpectatorDataProcessor {
 
         for (let i = 0; i < eventsSize; ++i) {
             const time = this.readFloat(view, counter);
+            const score = this.readInt(view, counter);
+            const combo = this.readInt(view, counter);
+            const accuracy = this.readFloat(view, counter);
 
-            events.score.add(
-                new SpectatorScoreEvent(time, this.readInt(view, counter)),
-            );
-            events.combo.add(
-                new SpectatorComboEvent(time, this.readInt(view, counter)),
-            );
-            events.accuracy.add(
-                new SpectatorAccuracyEvent(time, this.readFloat(view, counter)),
-            );
+            events.score.add(new SpectatorScoreEvent(time, score));
+            events.combo.add(new SpectatorComboEvent(time, combo));
+            events.accuracy.add(new SpectatorAccuracyEvent(time, accuracy));
         }
         //#endregion
 

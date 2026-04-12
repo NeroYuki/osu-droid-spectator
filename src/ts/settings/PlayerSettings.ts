@@ -37,7 +37,9 @@ export function setIgnoredPlayersFromRoomName(name: string): void {
     console.log("Resetting list of ignored players");
     ignoredPlayers.clear();
 
-    const match = /Ref:\d+(?:[ \t]*[,]?[ \t]*\d+)+/.exec(name);
+    console.log(name)
+
+    const match = /Ref:\d+(?:[ \t]*,[ \t]*\d+)*/.exec(name);
     if (!match) {
         return;
     }
