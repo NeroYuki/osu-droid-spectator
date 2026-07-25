@@ -274,13 +274,13 @@ async function getAudioBlob(
     osuFile: string,
 ): Promise<string> {
     let audioBlob = "";
-    const audioMatch = /(?<=AudioFilename: ).+(?=)/.exec(osuFile);
+    const audioMatch = /(?<=AudioFilename:\s*).+/.exec(osuFile);
 
     if (!audioMatch) {
         return audioBlob;
     }
 
-    const audioFilename = audioMatch[0];
+    const audioFilename = audioMatch[0].trim();
 
     for (const entry of entries) {
         if (entry.name !== audioFilename) {

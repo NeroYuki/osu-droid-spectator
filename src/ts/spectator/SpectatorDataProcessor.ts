@@ -235,7 +235,7 @@ export class SpectatorDataProcessor {
 
         for (let i = 0; i < eventsSize; ++i) {
             const time = this.readFloat(view, counter);
-            const score = this.readInt(view, counter);
+            const score = Number(this.readLong(view, counter));
             const combo = this.readInt(view, counter);
             const accuracy = this.readFloat(view, counter);
 
@@ -246,13 +246,6 @@ export class SpectatorDataProcessor {
         //#endregion
 
         manager.latestDataTime = mSecPassed;
-
-        console.log(
-            "Received data from uid",
-            uid,
-            "latest data time is set to",
-            manager.latestDataTime,
-        );
 
         return true;
     }
@@ -274,6 +267,13 @@ export class SpectatorDataProcessor {
     private readInt(view: DataView, counter: Counter) {
         const num = view.getInt32(counter.counter);
         counter.counter += 4;
+
+        return num;
+    }
+
+    private readLong(view: DataView, counter: Counter) {
+        const num = view.getBigInt64(counter.counter);
+        counter.counter += 8;
 
         return num;
     }
