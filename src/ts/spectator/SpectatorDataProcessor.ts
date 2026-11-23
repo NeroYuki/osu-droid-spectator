@@ -233,11 +233,32 @@ export class SpectatorDataProcessor {
         //#region Parse events
         const eventsSize = this.readInt(view, counter);
 
+        // Older clients send a single accuracy float per event, whereas newer
+        // clients send the four hit counts. The protocol has no version marker,
+        // so infer the layout from the amount of remaining data.
+        const isLegacyEventLayout =
+            eventsSize > 0 &&
+            view.byteLength - counter.counter === eventsSize * 20;
+
         for (let i = 0; i < eventsSize; ++i) {
             const time = this.readFloat(view, counter);
             const score = Number(this.readLong(view, counter));
             const combo = this.readInt(view, counter);
-            const accuracy = this.readFloat(view, counter);
+
+            let accuracy: number;
+
+            if (isLegacyEventLayout) {
+                accuracy = this.readFloat(view, counter);
+            } else {
+                const n300 = this.readInt(view, counter);
+                const n100 = this.readInt(view, counter);
+                const n50 = this.readInt(view, counter);
+                const misses = this.readInt(view, counter);
+                const total = n300 + n100 + n50 + misses;
+
+                accuracy =
+                    total === 0 ? 1 : (6 * n300 + 2 * n100 + n50) / (6 * total);
+            }
 
             events.score.add(new SpectatorScoreEvent(time, score));
             events.combo.add(new SpectatorComboEvent(time, combo));

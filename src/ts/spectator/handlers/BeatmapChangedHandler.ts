@@ -2,7 +2,7 @@ import { createHash } from "crypto";
 import { audioState, resetAudio } from "../../elements/Audio";
 import { background, clearBackground } from "../../elements/Background";
 import { JSZipObject } from "jszip";
-import { BeatmapDecoder, Modes } from "@rian8337/osu-base";
+import { BeatmapDecoder, Modes, Vector2 } from "@rian8337/osu-base";
 import {
     pickedBeatmap,
     setPickedBeatmap,
@@ -159,6 +159,17 @@ export default async function (
         Modes.droid,
         false,
     ).result;
+
+    // Clamp hitobject origins to the playfield, matching the game client.
+    // Slider anchors are stored relative to the origin, so moving the origin
+    // preserves their coordinates.
+    for (const hitObject of newParsedBeatmap.hitObjects.objects) {
+        hitObject.position = new Vector2(
+            Math.min(Math.max(hitObject.position.x, 0), 512),
+            Math.min(Math.max(hitObject.position.y, 0), 512),
+        );
+    }
+
     const { metadata: newMetadata } = newParsedBeatmap;
 
     const droidDifficultyAttributes = droidDifficultyCalculator.calculate(
